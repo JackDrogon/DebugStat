@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <assert.h>
+#include <cassert>
 #include <dirent.h>
 #include <execinfo.h>
 #include <signal.h>
@@ -15,6 +15,7 @@ bool nepenthe_enable_debug = false;
 
 
 static void _signal_handler(int signal);
+void _dump_backtrace();
 void _dump_process_status(pid_t pid);
 void _dump_maps(pid_t pid);
 void _dump_fds(pid_t pid);
@@ -29,9 +30,7 @@ static void __attribute__((constructor)) _enable_debug(void)
 	if (nepenthe_enable_debug) {
 		color_printf("======== Enable_debug: ========\n");
 
-
 		/* initialize signals */
-
 		signal(SIGINT, _signal_handler);
 		signal(SIGQUIT, _signal_handler);
 		signal(SIGILL, _signal_handler);
@@ -151,16 +150,7 @@ void _signal_handler(int signal)
 
 	/* backtrace */
 	if (nepenthe_enable_debug) {
-		void *buffer[128];
-		int nptrs = backtrace(buffer, sizeof(buffer));
-		color_printf("======== Backtrace: ========\n");
-		char **strings = backtrace_symbols(buffer, nptrs);
-		if (strings != NULL) {
-			int i;
-			for (i = 0; i < nptrs; i++)
-				printf("%s\n", strings[i]);
-			free(strings);
-		}
+		_dump_backtrace();
 	}
 
 	/* pid dependent information */
@@ -173,6 +163,20 @@ void _signal_handler(int signal)
 	}
 
 	exit(1);
+}
+
+void _dump_backtrace()
+{
+	void *buffer[128];
+	int nptrs = backtrace(buffer, sizeof(buffer));
+	color_printf("======== Backtrace: ========\n");
+	char **strings = backtrace_symbols(buffer, nptrs);
+	if (strings != NULL) {
+		int i;
+		for (i = 0; i < nptrs; i++)
+			printf("%s\n", strings[i]);
+		free(strings);
+	}
 }
 
 
