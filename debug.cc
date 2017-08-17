@@ -37,7 +37,7 @@ static void __attribute__((constructor)) _enable_debug(void)
 		signal(SIGABRT, _signal_handler);
 		signal(SIGBUS, _signal_handler);
 		signal(SIGFPE, _signal_handler);
-		/* signal (SIGKILL, _signal_handler); */
+		// signal (SIGKILL, _signal_handler);
 		signal(SIGSEGV, _signal_handler);
 		signal(SIGTERM, _signal_handler);
 	}
@@ -95,9 +95,11 @@ void _signal_handler(int signal)
 	case SIGTERM:
 		printf("SIGTERM");
 		break;
+#if defined(__linux__)
 	case SIGSTKFLT:
 		printf("SIGSTKFLT");
 		break;
+#endif
 	case SIGCHLD:
 		printf("SIGCHLD");
 		break;
@@ -137,9 +139,11 @@ void _signal_handler(int signal)
 	case SIGIO:
 		printf("SIGIO or SIGPOLL");
 		break;
+#if defined(__linux__)
 	case SIGPWR:
 		printf("SIGPWR");
 		break;
+#endif
 	case SIGSYS:
 		printf("SIGSYS");
 		break;
